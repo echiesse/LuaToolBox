@@ -1,29 +1,50 @@
 require "lfs"
 require "luno"
-luno.useAliases()
-luno.functional.exposeAll()
-luno.string.exposeSome()
+    luno.useAliases()
+    luno.functional.exposeAll()
+    luno.string.exposeSome()
 
-function fixPath(path)
-    local dirSep = splitLines(package.config)[1]
-    path = string.gsub(path, "[/\\]", dirSep)
-    return path
+require "ltb.util"
+
+package.path = package.path .. fixPath(";./ltb/?.lua;./ltb/?/init.lua")
+
+-- Aqui deve-se ler o arquivo de setup:
+-- Ex: '.env' no Laravel ou 'settings.py' no django
+--dotEnv = DotEnvHelper(info.ENV_FILE)
+
+
+function tryLoadModule(moduleName, errMessage, errCode)
+    errCode = errCode or 1
+    local ok, module = pcall(require, moduleName)
+    if not ok then
+        print(errMessage)
+        print(module)
+        os.exit(errCode)
+    end
+    return module
 end
 
-package.path = package.path .. fixPath(";./?/init.lua")
-require "ltb_lib"
 
-SRC_DIR = fixPath "../src"
-info =
-{
-    ENV_FILE = joinPath{SRC_DIR, ".env"}
-}
+function loadTarget(targetName)
+    targetName = targetName or config.TARGET_FRAMEWORK
+    return tryLoadModule(
+        "target." .. targetName,
+        "Não foi possivel carregar o target " .. targetName
+    )
+end
 
-dotEnv = DotEnvHelper(info.ENV_FILE)
+
+function loadDBAdapter(dbType)
+    dbType = dbType or config.DB_TYPE
+    return tryLoadModule(
+        "db." .. dbType,
+        "Não foi possivel carregar o adaptador para o banco " .. dbType
+    )
+end
 
 
 function getCommand(commandName)
-    local pluginPath = ("ltb_lib.plugins.%s"):format(commandName)
+    local pluginPath = ("plugins.%s"):format(commandName)
     local status, cmd = pcall(require, pluginPath)
     if status == false then
         cmd = nil
@@ -31,6 +52,8 @@ function getCommand(commandName)
     return cmd
 end
 
+
+config = require "config"
 
 function main(...)
     local args = {...}
@@ -41,11 +64,14 @@ function main(...)
         os.exit(0)
     end
 
+    local target = loadTarget()
+    local db = loadDBAdapter()
+
     -- Processar a requisição do usuário:
     local command = getCommand(commandName)
     if command ~= nil then
         local args = drop(1, args)
-        command.exec(unpack(args))
+        command.exec(target, db, unpack(args))
     else
         print("Comando nao encontrado: " .. commandName)
         os.exit(1)
@@ -54,3 +80,4 @@ end
 
 
 main(...)
+--printDeep(loadTarget("django"))

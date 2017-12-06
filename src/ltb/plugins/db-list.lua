@@ -1,16 +1,13 @@
-require "ltb_lib"
 
---##############################################################################
 local plugin = {}
 
-
-function plugin.exec(...)
-    local dotEnvLines = dotEnv:getLines()
-
-    local dbLines = filter(partial(lineKeyMatches, "DB_DATABASE"), dotEnvLines)
-    dbLines = map(compose(getAnotatedDB, getPair), dbLines)
-
-    map(print, dbLines)
+function plugin.exec(target, db, ...)
+    local databases = target.getDatabases()
+    if databases == nil or ltable.isEmpty(databases) then
+        print("Nenhum banco de dados encontrado")
+    else
+        map(print, databases)
+    end
 end
 
 return plugin

@@ -1,6 +1,16 @@
 require "luno"
 luno.useAliases()
+luno.functional.exposeAll()
+
 --##############################################################################
+
+function fixPath(path)
+    local dirSep = splitLines(package.config)[1]
+    path = string.gsub(path, "[/\\]", dirSep)
+    return path
+end
+
+
 function sformat(pattern, vars)
     for var, value in pairs(vars) do
         pattern = string.gsub(pattern, "{" .. var .. "}", value)
