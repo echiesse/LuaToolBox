@@ -3,10 +3,10 @@ luno.useAliases()
 luno.functional.exposeAll()
 
 --##############################################################################
+DIR_SEP = lstring.splitLines(package.config)[1]
 
 function fixPath(path)
-    local dirSep = splitLines(package.config)[1]
-    path = string.gsub(path, "[/\\]", dirSep)
+    path = string.gsub(path, "[/\\]", DIR_SEP)
     return path
 end
 
@@ -79,4 +79,22 @@ function uncommentLine(line)
         line = string.gsub(line, "#", "", 1)
     end
     return line
+end
+
+
+function timestamp(time)
+    if time == nil then
+        time = os.time()
+    end
+    local ret = os.date("%Y%m%d_%H%M%S", time)
+    return ret
+end
+
+
+function copyFile(orig, dest)
+    inputFile = io.open(orig, "rb")
+    outputFile = io.open(dest, "wb")
+    outputFile:write(inputFile:read("*a"))
+    inputFile:close()
+    outputFile:close()
 end
