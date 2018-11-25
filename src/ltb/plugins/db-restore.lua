@@ -7,11 +7,14 @@ local plugin =
 
 
 function plugin.exec(target, db, databaseName, backupFile)
+    databaseName = databaseName or target.getDatabaseName()
 
     dbReset.exec(target, db, databaseName)
 
     -- Importar Dados:
     backupFile = backupFile or table.concat({config.DB_BACKUP_DIR,  databaseName .. "_dump.sql"}, DIR_SEP)
+
+    local sqlShellCommand = db.getShellCommand()
     sqlCommand = sqlShellCommand .. [[ --database=%s < ]] .. backupFile
     sqlCommand = sqlCommand:format(databaseName)
     print("Importando dados do arquivo '" .. backupFile .. "'")
