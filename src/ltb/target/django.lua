@@ -1,3 +1,7 @@
+require 'lib.DjangoSettingsHandler'
+
+settings = DjangoSettingsHandler(config.django.SETTINGS_FILE)
+
 
 local target =
 {
@@ -5,11 +9,21 @@ local target =
 }
 
 function target.getDatabases()
-    return {"* seya"}
+    --return {"* seya"}
+    local database = settings:getDictValue('DATABASES', "'default'")
+    return {database}
 end
 
+
 function target.getDatabaseName()
-    return config.django.DB_NAME
+    local database = settings:getDictValue('DATABASES', "'default'")
+    return database
+end
+
+
+function target.changeDatabase(newDatabaseName)
+    settings:disableCurrentDatabase()
+    return settings:enableTargetDB(newDatabaseName)
 end
 
 

@@ -27,8 +27,9 @@ function joinPath(parts)
 end
 
 
-function getPair(kvString)
-    return map(trim, split(kvString, "="))
+function getPair(kvString, sep)
+    sep = sep or "="
+    return map(trim, split(kvString, sep))
 end
 
 
@@ -53,16 +54,6 @@ end
 function lineValueMatches(value, line)
     local k, v = unpack(getPair(line))
     return string.match(v, value) ~= nil
-end
-
-
-function getAnotatedDB(kvPair)
-    local prefix = "  "
-    if lstring.charAt(kvPair[1], 1) ~= "#" then
-        prefix = "* "
-    end
-    local ret = prefix .. kvPair[2]
-    return ret
 end
 
 

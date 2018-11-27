@@ -7,13 +7,13 @@ local config = {
 
     laravel =
     {
-        ENV_FILE = ".env",
+        SETTINGS_FILE = ".env",
     },
 
     django =
     {
         DB_NAME = "seya",
-
+        SETTINGS_FILE = "Seya/settings.py",
     },
 
     --Database setup
