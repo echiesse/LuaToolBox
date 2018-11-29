@@ -8,38 +8,20 @@ require "ltb.util"
 
 package.path = package.path .. fixPath(";./ltb/?.lua;./ltb/?/init.lua")
 
--- Aqui deve-se ler o arquivo de setup:
--- Ex: '.env' no Laravel ou 'settings.py' no django
---dotEnv = DotEnvHelper(info.ENV_FILE)
-
-
-function tryLoadModule(moduleName, errMessage, errCode)
-    errCode = errCode or 1
-    local ok, module = pcall(require, moduleName)
-    if not ok then
-        print(errMessage)
-        print(module)
-        os.exit(errCode)
-    end
-    return module
-end
-
 
 function loadTarget(targetName)
     targetName = targetName or config.TARGET_FRAMEWORK
-    return tryLoadModule(
-        "target." .. targetName,
-        "Não foi possivel carregar o target " .. targetName
-    )
+    local moduleName = "target." .. targetName
+    local module = require(moduleName)
+    return module
 end
 
 
 function loadDBAdapter(dbType)
     dbType = dbType or config.DB_TYPE
-    return tryLoadModule(
-        "db." .. dbType,
-        "Não foi possivel carregar o adaptador para o banco " .. dbType
-    )
+    local moduleName = "db." .. dbType
+    local module = require(moduleName)
+    return module
 end
 
 
@@ -80,4 +62,3 @@ end
 
 
 main(...)
---printDeep(loadTarget("django"))

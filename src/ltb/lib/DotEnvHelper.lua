@@ -5,16 +5,6 @@ luno.string.exposeSome()
 require 'lib.DatabaseInfo'
 
 
---function getAnotatedDB(kvPair)
---    local prefix = "  "
---    if lstring.charAt(kvPair[1], 1) ~= "#" then
---        prefix = "* "
---    end
---    local ret = prefix .. kvPair[2]
---    return ret
---end
-
-
 class "DotEnvHelper"
 
 function DotEnvHelper.init(self, dotEnvFilePath)

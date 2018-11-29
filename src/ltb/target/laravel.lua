@@ -1,16 +1,6 @@
-require "DotEnvHelper"
+require "lib.DotEnvHelper"
 
 local dotEnv = DotEnvHelper(config.laravel.SETTINGS_FILE)
-
-local function getAnotatedDB(kvPair)
-    local prefix = "  "
-    if lstring.charAt(kvPair[1], 1) ~= "#" then
-        prefix = "* "
-    end
-    local ret = prefix .. kvPair[2]
-    return ret
-end
-
 
 local function commmentDBLine(line)
     local key = getKey(line)
@@ -38,9 +28,9 @@ function target.getDatabases()
     local dotEnvLines = dotEnv:getLines()
 
     local dbLines = filter(partial(lineKeyMatches, "DB_DATABASE"), dotEnvLines)
-    dbLines = map(compose(getAnotatedDB, getPair), dbLines)
-
-    return dbLines
+    local pairLines = map(getPair, dbLines)
+    local databases = map(compose(DatabaseInfo.fromRawKeyValue, unpack), pairLines)
+    return databases
 end
 
 
@@ -53,6 +43,7 @@ function target.changeDatabase(newDatabaseName)
     local lines = dotEnv:getLines()
     lines = map(compose(uncommentTargetDBLine(newDatabaseName), commmentDBLine), lines)
     dotEnv:setLines(lines)
+    return true
 end
 
 
