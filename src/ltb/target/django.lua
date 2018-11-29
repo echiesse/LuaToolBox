@@ -8,10 +8,10 @@ local target =
     name = "django"
 }
 
+
 function target.getDatabases()
-    --return {"* seya"}
-    local database = target.getDatabaseName()
-    return {database}
+    local databases = settings:parseDict('DATABASES')
+    return databases
 end
 
 
