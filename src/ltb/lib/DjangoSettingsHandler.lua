@@ -3,6 +3,7 @@ luno.useAliases()
 luno.functional.exposeAll()
 luno.string.exposeSome()
 
+require 'lib.DatabaseInfo'
 require 'lib.KeyValuePair'
 
 function commentLine(line)
@@ -71,7 +72,7 @@ function DjangoSettingsHandler:enableTargetDB(targetDB)
     self:traverse('DATABASES', function(lines, index)
         local line = lines[index]
         local pair = KeyValuePair(line, ':')
-        if pair.value == targetDB then
+        if pair.value ~= nil and self:getDictValue(pair.value, 'NAME') == "'" .. targetDB .. "'" then
             lines[index] = uncommentLine(line)
             self:save()
             ret = true
@@ -106,15 +107,45 @@ function DjangoSettingsHandler:getDictValue(dictName, key)
     local traverser = function(lines, index)
         local line = lines[index]
         local k, v = unpack(map(trim, lstring.split(line, ':')))
-        if k == key then
+        if k == "'" .. key .. "'" or k == '"' .. key .. '"' then
             value = v
             return false
         end
         return true
     end
     self:traverse(dictName, traverser)
-
+    if value ~= nil and string.sub(value, -1, -1) == ',' then
+        value = trim(string.sub(value, 1, -2))
+    end
     return value
+end
+
+
+local function keysMatch(ref, key)
+    return
+        string.find(key, "^#?%s*'" .. ref .. "'") ~= nil or
+        string.find(key, '^#?%s*"' .. ref .. '"') ~= nil
+end
+
+
+function DjangoSettingsHandler:parseDict(dictName)
+    local ret = {}
+
+    local traverser = function(lines, index)
+        local line = lines[index]
+        local key, value = unpack(map(trim, lstring.split(line, ':')))
+        if key ~= nil and value ~= nil then
+            if string.sub(value, -1, -1) == ',' then
+                value = trim(string.sub(value, 1, -2))
+            end
+
+            local elemInfo = DatabaseInfo.fromRawKeyValue(key, value)
+            table.insert(ret, elemInfo)
+        end
+        return true
+    end
+    self:traverse(dictName, traverser)
+    return ret
 end
 
 

@@ -89,3 +89,8 @@ function copyFile(orig, dest)
     inputFile:close()
     outputFile:close()
 end
+
+
+function middle(str)
+    return string.sub(str, 2, -2)
+end

@@ -10,13 +10,14 @@ local target =
 
 function target.getDatabases()
     --return {"* seya"}
-    local database = settings:getDictValue('DATABASES', "'default'")
+    local database = target.getDatabaseName()
     return {database}
 end
 
 
 function target.getDatabaseName()
-    local database = settings:getDictValue('DATABASES', "'default'")
+    local dbVarName = settings:getDictValue('DATABASES', 'default')
+    local database = middle(settings:getDictValue(dbVarName, 'NAME'))
     return database
 end
 

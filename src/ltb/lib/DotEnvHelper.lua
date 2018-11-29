@@ -1,4 +1,19 @@
 require "luno"
+luno.useAliases()
+luno.functional.exposeAll()
+luno.string.exposeSome()
+require 'lib.DatabaseInfo'
+
+
+--function getAnotatedDB(kvPair)
+--    local prefix = "  "
+--    if lstring.charAt(kvPair[1], 1) ~= "#" then
+--        prefix = "* "
+--    end
+--    local ret = prefix .. kvPair[2]
+--    return ret
+--end
+
 
 class "DotEnvHelper"
 
@@ -48,4 +63,9 @@ end
 
 function DotEnvHelper.get(self, key)
     return self.dotEnvTable[key]
+end
+
+
+function DotEnvHelper.getLinesMatching(self, pattern)
+    return self.dotEnvLines
 end
